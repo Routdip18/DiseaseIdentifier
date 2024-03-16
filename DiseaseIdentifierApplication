@@ -1,0 +1,119 @@
+//create spring boot application
+@SpringBootApplication
+public class DiseaseIdentifierApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DiseaseIdentifierApplication.class, args);
+    }
+}
+//controller handling requests
+@RestController
+@RequestMapping("/api")
+public class DiseaseController {
+    @Autowired
+    private DiseaseService diseaseService;
+
+    @PostMapping("/identify")
+    public ResponseEntity<List<String>> identifyDisease(@RequestBody List<String> symptoms) {
+        List<String> diseases = diseaseService.identifyDisease(symptoms);
+        return ResponseEntity.ok(diseases);
+    }
+}
+//service layer to perform business logic
+@Service
+public class DiseaseService {
+    @Autowired
+    private DiseaseRepository diseaseRepository;
+
+    public List<String> identifyDisease(List<String> symptoms) {
+        // Implement logic to identify diseases based on symptoms
+        return diseaseRepository.findDiseasesBySymptoms(symptoms);
+    }
+}
+//Repository for Database Interaction (using JPA):
+@Repository
+public interface DiseaseRepository extends JpaRepository<Disease, Long> {
+    List<String> findDiseasesBySymptoms(List<String> symptoms);
+}
+//Entity class for disease
+@Entity
+public class Disease {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    // Other attributes and getters/setters
+}
+//use any SQL database like MySQL, PostgreSQL, etc. Create a table named disease with fields like id, name, etc., and populate it with sample diseases and their symptoms.
+
+
+//create react app
+
+npx create-react-app disease-identifier
+cd disease-identifier
+//Install Axios for HTTP Requests:
+
+npm install axios
+//Component for Disease Identification:
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function DiseaseIdentifier() {
+    const [symptoms, setSymptoms] = useState('');
+    const [diseases, setDiseases] = useState([]);
+
+    const identifyDisease = async () => {
+        try {
+            const response = await axios.post('/api/identify', { symptoms });
+            setDiseases(response.data);
+        } catch (error) {
+            console.error('Error identifying disease:', error);
+        }
+    };
+
+    return (
+        <div>
+            <h1>Disease Identifier</h1>
+            <input
+                type="text"
+                value={symptoms}
+                onChange={(e) => setSymptoms(e.target.value)}
+                placeholder="Enter symptoms (comma-separated)"
+            />
+            <button onClick={identifyDisease}>Identify</button>
+            <div>
+                <h2>Possible Diseases:</h2>
+                <ul>
+                    {diseases.map((disease, index) => (
+                        <li key={index}>{disease}</li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    );
+}
+
+export default DiseaseIdentifier;
+
+//App Component to Render DiseaseIdentifier:
+
+import React from 'react';
+import DiseaseIdentifier from './DiseaseIdentifier';
+
+function App() {
+    return (
+        <div className="App">
+            <DiseaseIdentifier />
+        </div>
+    );
+}
+export default App;
+
+//Run the Application:
+
+npm start
+
+
+
+
+
