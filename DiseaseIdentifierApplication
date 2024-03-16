@@ -25,7 +25,16 @@ public class DiseaseService {
     private DiseaseRepository diseaseRepository;
 
     public List<String> identifyDisease(List<String> symptoms) {
-        // Implement logic to identify diseases based on symptoms
+          List<Disease> diseases = diseaseRepository.findAll();
+        List<String> identifiedDiseases = new ArrayList<>();
+
+        for (Disease disease : diseases) {
+            List<String> diseaseSymptoms = Arrays.asList(disease.getSymptoms().split(","));
+            // Check if all symptoms of the disease are present in the provided symptoms
+            if (symptoms.containsAll(diseaseSymptoms)) {
+                identifiedDiseases.add(disease.getName());
+            }
+        }
         return diseaseRepository.findDiseasesBySymptoms(symptoms);
     }
 }
